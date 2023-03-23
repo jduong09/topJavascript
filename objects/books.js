@@ -94,7 +94,6 @@ console.log( speedy.stomach ); // apple
 console.log( lazy.stomach ); // apple
 
 // Fixed by giving each one their own stomach.
-*/
 
 // Explanation of THIS in javascript.
 // Function Invocation: Expression evaluates to a function object, followed by a pair of parenthesis with an argument.
@@ -118,26 +117,109 @@ const numbers = {
 };
 // numbers.sum(); // => NaN or throws TypeError in strict mode
 // console.log(numbers.sum());
-/*
+*/
 // Method Invocation: 
 // Method invocation is performed when an expression in a form of property accessor that evaluates to a function object is followed by an open parenthesis.
+// 'this' is the object that owns the method in a method invocation.
+/*
+const calc = {
+  num: 0,
+  increment() {
+    console.log(this === calc); // => true
+    this.num += 1;
+    return this.num;
+  }
+};
+
+calc.increment();
+calc.increment();
+console.log(calc);
+*/
+/*
+const myDog = Object.create({
+  sayName() {
+    console.log(this === myDog); // => true
+    return this.name;
+  }
+});
+
+myDog.name = 'Milo';
+// method invocation. this is myDog
+myDog.sayName(); // => 'Milo'
+
+*/
+/*
 class Planet {
   constructor(name) {
     this.name = name;
   }
 
   getName() {
-    console.log(this === earth);
-    console.log(this);
+    console.log(this === earth); // => false
     return this.name;
   }
 }
 
 const earth = new Planet('Earth');
 
-// Separate the method from the object into a separate variable
-const method = earth.getName;
-method.call(this);
-method();
-// 'this' is not the original object, returns false and this.name reads as undefined.
+// Pitfall: Separate the method from the object into a separate variable
+// Solve: A bound function fixes the context by binding 'this' to the object that owns the method.
+const method = earth.getName.bind(earth);
+method(); // => This is function invocation, therefore this is the global object or undefined in strict mode.
 */
+/*
+function Pet(type, legs) {
+  this.type = type;
+  this.legs = legs;
+
+  // An alternative solution is to define logInfo as an arrow function, which binds 'this' lexically
+  this.logInfo = () => {
+    console.log(this === myCat);
+    console.log(`The ${this.type} has ${this.legs} legs`)
+  }
+}
+
+// When passed as a parameter in the setTimeout arguments, the method is separated from the object
+// 'this' is global object or undefined in strict mode.
+const myCat = new Pet('Cat', 4);
+setTimeout(myCat.logInfo, 1000);
+
+// solve by binding function.
+const boundLogInfo = myCat.logInfo.bind(myCat);
+setTimeout(boundLogInfo, 1000);
+*/
+
+// Constructor invocation
+// Performed when new keyword is followed by an expression that to a function object, an open parenthesis (, a comma separated list of arguments expressions and a close parenthesis ).
+// Examples: new Pet('cat', 4), new RegExp('\\d');
+/*
+function Country(name, traveled) {
+  this.name = name ? name : "United Kingdom";
+  this.traveled = Boolean(traveled);
+}
+
+Country.prototype.travel = function() {
+  this.traveled = true;
+  return `Travel to ${this.name}`;
+}
+// Constructor invocation
+const FRANCE = new Country('France', false);
+
+// Constructor invocation
+console.log(FRANCE.travel());
+*/
+/*
+class City {
+  constructor(name, traveled) {
+    this.name = name;
+    this.traveled = traveled;
+  }
+
+  travel() {
+    this.traveled = true;
+  }
+}
+
+const paris = new City('Paris', false);
+*/
+// 'this' is the newly created object in a constructor invocation
