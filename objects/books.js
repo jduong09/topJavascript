@@ -1,3 +1,4 @@
+/*
 function Book(title, author, pages, read) {
   this.title = title,
   this.author = author,
@@ -62,11 +63,9 @@ console.log( bed.glasses === 1 );
 // should be faster to get glasses as head.glasses
 
 // correct answer
-/*
 In modern engines, performance-wise, there’s no difference whether we take a property from an object or its prototype. They remember where the property was found and reuse it in the next request.
 
 For instance, for pockets.glasses they remember where they found glasses (in head), and next time will search right there. They are also smart enough to update internal caches if something changes, so that optimization is safe.
-*/
 
 
 let hamster = {
@@ -95,3 +94,50 @@ console.log( speedy.stomach ); // apple
 console.log( lazy.stomach ); // apple
 
 // Fixed by giving each one their own stomach.
+*/
+
+// Explanation of THIS in javascript.
+// Function Invocation: Expression evaluates to a function object, followed by a pair of parenthesis with an argument.
+// 'this' is the global object in a function invocation.
+// The global object is determined by the execution environment.
+// In a browser, the global object is window object.
+// 'this' is undefined in a function invocation in strict mode.
+const numbers = {
+  numberA: 5,
+  numberB: 10,
+  sum: function() {
+    console.log(this === numbers); // => true
+    function calculate() {
+      // this is window or undefined in strict mode
+      console.log(this === numbers); // => false
+      return this.numberA + this.numberB;
+    }
+    // use .call() method to modify the context
+    return calculate.call(this);
+  }
+};
+// numbers.sum(); // => NaN or throws TypeError in strict mode
+// console.log(numbers.sum());
+/*
+// Method Invocation: 
+// Method invocation is performed when an expression in a form of property accessor that evaluates to a function object is followed by an open parenthesis.
+class Planet {
+  constructor(name) {
+    this.name = name;
+  }
+
+  getName() {
+    console.log(this === earth);
+    console.log(this);
+    return this.name;
+  }
+}
+
+const earth = new Planet('Earth');
+
+// Separate the method from the object into a separate variable
+const method = earth.getName;
+method.call(this);
+method();
+// 'this' is not the original object, returns false and this.name reads as undefined.
+*/
