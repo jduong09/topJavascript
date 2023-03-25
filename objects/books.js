@@ -223,3 +223,172 @@ class City {
 const paris = new City('Paris', false);
 */
 // 'this' is the newly created object in a constructor invocation
+/*
+function Foo () {
+  // this is fooInstance
+  this.property = 'Default Value';
+}
+
+// Constructor invocation
+const fooInstance = new Foo();
+console.log(fooInstance.property); // => 'Default value'
+// new Foo() is making a constructor call where the context is fooInstance.
+// Inside Foo the object is initialized: this.property is assigned with a default value.
+
+function Vehicle(type, wheelsCount) {
+  this.type = type;
+  this.wheelsCount = wheelsCount;
+  return this;
+}
+
+// Function Invocation
+const car = Vehicle('Car', 4);
+console.log(car.type);
+console.log(car.wheelsCount);
+console.log(car instanceof Vehicle);
+*/
+// Indirect invocation
+// Indirect invocation is performed when a function is called using myFun.call() or myFun.apply() methods.
+// .call and .apply are used to invoke the function with a configurable context.
+
+// myFunction.call(thisArg, arg1, arg2, ...) accepts the first argument 'thisArg' as the context of the invocation
+// and a list of arguments that are passed as arguments to the called function.
+/*
+// Example
+function sum(number1, number2) {
+  return number1 + number2;
+}
+
+console.log(sum(10, 2));
+console.log(sum.call(undefined, 10, 2));
+console.log(sum.apply(undefined, [10, 2]));
+// 'this' is the first argument of .call() or .apply() in an indirect invocation
+
+const rabbit = {
+  name: 'White Rabbit'
+};
+
+function concatName(string) {
+  console.log(this === rabbit); // true
+  return string + this.name;
+}
+
+// Indirect invocations
+console.log(concatName.call(rabbit, 'Hello ')); // => 'Hello White Rabbit'
+console.log(concatName.apply(rabbit, ['Bye '])); // => Bye White Rabbit
+// indirect invocation is useful when a function should be executed with a specific context.
+
+// Another practical example is creating hierarchies of classes in ES5 to call the parent constructor:
+
+function Runner(name) {
+  console.log(this instanceof Rabbit); // => true
+  this.name = name;
+}
+
+function Rabbit(name, countLegs) {
+  console.log(this instanceof Rabbit); // => true
+  // Indirect invocation. Call parent constructor.
+  Runner.call(this, name);
+  this.countLegs = countLegs;
+}
+
+const myRabbit = new Rabbit('White Rabbit', 4);
+console.log(myRabbit);
+*/
+/*
+// Bound function
+// A bound function is a function whose context and/or arguments are bound to specific values.
+// You create a bound function using .bind() method.
+function multiply(number) {
+  return this * number;
+}
+
+// create a bound function with context
+const double = multiply.bind(2);
+// invoke the bound function
+console.log(double(3)) // => 6
+console.log(double(10)) // => 20
+// The role of .bind() is to create a new function, which invocation will have the context as the first argument passed to .bind()
+// It is a powerful technique that allows creating functions with a predefined this value.
+
+const numbers = {
+  array: [3, 5, 10],
+
+  getNumbers() {
+    return this.array;
+  }
+};
+
+// Create a bound function
+const boundGetNumbers = numbers.getNumbers.bind(numbers);
+console.log(boundGetNumbers()); // => [3, 5, 10];
+// numbers.getNumbers.bind(numbers) returns a function boundGetNumbers which context is bound to numbers.
+// Then boundGetNumbers() is invoked with 'this' as 'numbers' and returns the correct array object.
+// Extract method from object
+const simpleGetNumbers = numbers.getNumbers;
+console.log(simpleGetNumbers());
+*/
+// Tight context binding
+// .bind() makes a permanent context link and will always keep it.
+// A bound function cannot change its linked context when using .call() or .apply() with a different context or even a rebound doesn't have any effect.
+
+function getThis() {
+  return this;
+}
+
+const one = getThis.bind(1);
+
+console.log(one());
+// this === 1
+
+console.log(one.call(2));
+// this === 1, .call does not change the context of this.
+
+// only new one() changes the context of the bound function. Other Types of invocation always have this equal to 1.
+
+// Arrow function
+// Arrow function is designed to declare the function is a shorter form and lexically bind the context.
+
+const hello = (name) => {
+  return 'Hello ' + name;
+};
+
+console.log(hello('World')); // => 'Hello World'
+// 'this' is the enclosing context where the arrow function is defined.
+// The Arrow function doesn't create its own execution context but takes 'this' from the outer function where it is defined.
+
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  log() {
+    console.log(this === myPoint); // => true
+    setTimeout(() => {
+      console.log(this === myPoint); // => true
+      console.log(this.x + ':' + this.y) // => '95:165';
+    }, 1000);
+  }
+}
+const myPoint = new Point(95, 165);
+myPoint.log();
+
+// Pitfall: defining method with an arrow function
+// You might want to use arrow functions to declare methods on an object. 
+
+function Period (hours, minutes) {
+  this.hours = hours;
+  this.minutes = minutes;
+}
+
+Period.prototype.format = () => {
+  console.log(this === undefined); // => true
+  return this.hours + ' hours and ' + this.minutes + ' minutes ';
+};
+
+// Since format is an arrow function and is defined in the global context (topmost scope), it has this as window object.
+
+const walkPeriod = new Period(2, 30);
+const boundFunction = walkPeriod.format.bind(walkPeriod);
+console.log(boundFunction()) // => 'undefined hours and undefined minutes;
